@@ -1,0 +1,25 @@
+body {
+  background-color: #222;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 0.8em;
+}
+
+#toolbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 18px;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 8px;
+}
+
+#board {
+  width: "100vw";
+  height: "100vh";
+}
