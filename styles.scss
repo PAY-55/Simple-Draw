@@ -5,6 +5,7 @@
 
 body {
     background-color: #222;
+    overscroll-behavior-y: contain;
 }
 
 button {
@@ -18,6 +19,7 @@ button {
     background-color: #333;
     cursor: pointer;
     transition: 200ms ease-in-out;
+    overflow: hidden;
 
     &:hover {
         background-color: #aaa;
@@ -47,16 +49,14 @@ input {
 
 #toolbar {
     position: fixed;
-    background-color: transparent;
     top: 0;
     right: 0;
     left: 0;
+    background-color: transparent;
     padding: 18px;
     display: flex;
     justify-content: start;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }

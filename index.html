@@ -1,51 +1,57 @@
 <!doctype html>
 <html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=7,8,edge" />
+        <meta
+            name="viewport"
+            content="width=device-width, height=device-height, initial-scale=1"
+        />
+        <meta http-equiv="refresh" content="text/html;charset=UTF-8" />
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+        <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+        <script src="./draw.js" type="module"></script>
+        <script
+            src="https://kit.fontawesome.com/a673862905.js"
+            crossorigin="anonymous"
+        ></script>
+        <title>Simple Draw</title>
+    </head>
 
-<head>
-  <meta http-equiv="X-UA-Compatible" content="IE=7,8,edge" />
-  <meta http-equiv="refresh" content="text/html;charset=UTF-8" />
-  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
-  <script src="./draw.js" type="module"></script>
-  <script src="https://kit.fontawesome.com/a673862905.js" crossorigin="anonymous"></script>
-  <title>Simple Draw</title>
-</head>
-
-<body>
-  <header id="toolbar">
-    <div>
-      <button class="undo" id="undo">
-        <i class="fa-solid fa-rotate-left"></i>
-      </button>
-      <button class="redo" id="redo">
-        <i class="fa-solid fa-rotate-right"></i>
-      </button>
-      <button class="clear" id="clear"><i class="fa-solid fa-ban"></i></button>
-      <select name="px" id="px">
-        <option value="1">1px</option>
-        <option value="2">2px</option>
-        <option value="3">3px</option>
-        <option value="4" selected>4px</option>
-        <option value="5">5px</option>
-        <option value="6">6px</option>
-        <option value="7">7px</option>
-        <option value="8">8px</option>
-        <option value="9">9px</option>
-        <option value="10">10px</option>
-
-      </select>
-      <input type="color" name="color" id="color" value="#FFFFFF">
-      <button><i class="fa-solid fa-pencil"></i></button>
-      <button><i class="fa-solid fa-minus"></i></button>
-      <button><i class="fa-solid fa-draw-polygon"></i></button>
-      <button><i class="fa-regular fa-square-full"></i></button>
-      <button><i class="fa-regular fa-circle"></i></button>
-      <button><i class="fa-solid fa-font"></i></button>
-    </div>
-    <button><i class="fa-regular fa-floppy-disk"></i></button>
-  </header>
-  <canvas id="board" width="700" height="400">I am sorry it seems your browser might not support this web page,
-    try using a different browser and come back!</canvas>
-</body>
-
+    <body>
+        <header id="toolbar">
+            <button class="undo" id="undo">
+                <i class="fa-solid fa-rotate-left"></i>
+            </button>
+            <button class="redo" id="redo">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            <button class="clear" id="clear">
+                <i class="fa-solid fa-ban"></i>
+            </button>
+            <select name="px" id="px">
+                <option value="1">1px</option>
+                <option value="2">2px</option>
+                <option value="3">3px</option>
+                <option value="4" selected>4px</option>
+                <option value="5">5px</option>
+                <option value="6">6px</option>
+                <option value="7">7px</option>
+                <option value="8">8px</option>
+                <option value="9">9px</option>
+                <option value="10">10px</option>
+            </select>
+            <input type="color" name="color" id="color" value="#FFFFFF" />
+            <button><i class="fa-solid fa-pencil"></i></button>
+            <button><i class="fa-solid fa-minus"></i></button>
+            <button><i class="fa-solid fa-draw-polygon"></i></button>
+            <button><i class="fa-regular fa-square-full"></i></button>
+            <button><i class="fa-regular fa-circle"></i></button>
+            <button><i class="fa-solid fa-font"></i></button>
+            <button><i class="fa-regular fa-floppy-disk"></i></button>
+        </header>
+        <canvas id="board" width="0" height="0"
+            >I am sorry it seems your browser might not support this web page,
+            try using a different browser and come back!</canvas
+        >
+    </body>
 </html>
