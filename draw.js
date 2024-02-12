@@ -45,6 +45,7 @@ class Canvas {
         this.redos = [];
         this.ctx = this.canvas.getContext("2d");
         this.ctx.strokeStyle = "#ffffff";
+        this.ctx.lineJoin = "round";
         this.ctx.lineCap = "round";
         this.ctx.lineWidth = 4;
         this.drawing = false;
