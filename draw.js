@@ -43,7 +43,7 @@ class Canvas {
         this.canvas = canvas;
         this.paths = paths;
         this.redos = [];
-        this.screenCleared = [];
+        this.slice = 0;
         this.ctx = this.canvas.getContext("2d");
         this.ctx.strokeStyle = "#ffffff";
         this.ctx.lineJoin = "round";
@@ -81,8 +81,6 @@ class Canvas {
         this.paths.push(this.path);
         this.path = [];
         this.logPaths();
-        this.screenCleared = this.screenCleared.map(i => (i = i + 1));
-        console.log(this.screenCleared);
     }
 
     getMousePos(e) {
@@ -106,22 +104,16 @@ class Canvas {
         if (this.paths.length < 1) {
             return;
         }
-        const clearScreenUndo = this.screenCleared.some(index => index === 0);
-        if (clearScreenUndo) {
-            this.clearCanvas();
-            this.screenCleared = this.screenCleared.map(i => (i = i - 1));
-            return;
-        }
-        if (this.screenCleared.length > 0) {
-            const current = this.paths.length - 1;
-            const closestClear =
-                this.screenCleared[this.screenCleared.length - 1];
-            const pathsToRedraw = this.paths.slice(closestClear, current - 1);
-            this.clearCanvas();
-            this.redrawPaths(pathsToRedraw);
-            return;
-        }
         const newRedo = this.paths.pop();
+        console.log("redo: ", newRedo);
+        if (newRedo === null) {
+            console.log("null");
+            this.clearCanvas();
+            this.slice = this.paths.length - 1;
+            this.redos.push(null);
+            return;
+        }
+        console.log("not returning");
         this.redos.push(newRedo);
         this.clearCanvas();
         this.redrawPaths();
@@ -131,21 +123,15 @@ class Canvas {
         if (this.redos.length < 1) {
             return;
         }
-        const clearScreenRedo = this.screenCleared.some(index => index === 0);
-        if (clearScreenRedo) {
+        const oldPath = this.redos.pop();
+        if (oldPath === null) {
             this.clearCanvas();
-            this.screenCleared = this.screenCleared.map(i => (i = i + 1));
+            this.paths.push(null);
             return;
         }
-        const oldPath = this.redos.pop();
         this.paths.push(oldPath);
         this.clearCanvas();
         this.redrawPaths();
-    }
-
-    clearScreen() {
-        this.clearCanvas();
-        this.screenCleared.push(0);
     }
 
     setStrokeThickness(e) {
@@ -158,12 +144,20 @@ class Canvas {
         this.ctx.strokeStyle = newColor;
     }
 
+    clearScreen() {
+        this.clearCanvas();
+        this.paths.push(null);
+    }
+
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     redrawPaths(myPaths = this.paths) {
-        myPaths.forEach(p => {
+        myPaths.slice(this.slice, myPaths.length - 1).forEach(p => {
+            if (p === null) {
+                return;
+            }
             this.ctx.beginPath();
             this.ctx.moveTo(p[0].x, p[0].y);
             p.slice(1).forEach(pnt => {
