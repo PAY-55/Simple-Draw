@@ -12,7 +12,7 @@ function initializeBoard(e) {
         return;
     }
     const paths = [];
-    const btnsSelected = ["freehand"];
+    const btnsSelected = 0;
     const drawPad = new Canvas(canvas, paths);
     const tools = new ToolBar(toolBar);
     const undo = tools.getBtn("undo");
@@ -43,6 +43,7 @@ class Canvas {
         this.canvas = canvas;
         this.paths = paths;
         this.redos = [];
+        this.screenCleared = [];
         this.ctx = this.canvas.getContext("2d");
         this.ctx.strokeStyle = "#ffffff";
         this.ctx.lineJoin = "round";
@@ -74,12 +75,16 @@ class Canvas {
             this.path.push({ x, y });
         }
     }
+
     endDraw(e) {
         this.drawing = false;
         this.paths.push(this.path);
         this.path = [];
         this.logPaths();
+        this.screenCleared = this.screenCleared.map(i => (i = i + 1));
+        console.log(this.screenCleared);
     }
+
     getMousePos(e) {
         let x, y;
         if (e.touches && e.touches.length > 0) {
@@ -92,11 +97,28 @@ class Canvas {
         }
         return { x, y };
     }
+
     logPaths() {
         console.log(this.paths);
     }
+
     undo() {
         if (this.paths.length < 1) {
+            return;
+        }
+        const clearScreenUndo = this.screenCleared.some(index => index === 0);
+        if (clearScreenUndo) {
+            this.clearCanvas();
+            this.screenCleared = this.screenCleared.map(i => (i = i - 1));
+            return;
+        }
+        if (this.screenCleared.length > 0) {
+            const current = this.paths.length - 1;
+            const closestClear =
+                this.screenCleared[this.screenCleared.length - 1];
+            const pathsToRedraw = this.paths.slice(closestClear, current - 1);
+            this.clearCanvas();
+            this.redrawPaths(pathsToRedraw);
             return;
         }
         const newRedo = this.paths.pop();
@@ -104,8 +126,15 @@ class Canvas {
         this.clearCanvas();
         this.redrawPaths();
     }
+
     redo() {
         if (this.redos.length < 1) {
+            return;
+        }
+        const clearScreenRedo = this.screenCleared.some(index => index === 0);
+        if (clearScreenRedo) {
+            this.clearCanvas();
+            this.screenCleared = this.screenCleared.map(i => (i = i + 1));
             return;
         }
         const oldPath = this.redos.pop();
@@ -113,22 +142,28 @@ class Canvas {
         this.clearCanvas();
         this.redrawPaths();
     }
+
     clearScreen() {
         this.clearCanvas();
+        this.screenCleared.push(0);
     }
+
     setStrokeThickness(e) {
         const thickness = e.target.value;
         this.ctx.lineWidth = thickness;
     }
+
     changeStrokeColor(e) {
         const newColor = e.target.value;
         this.ctx.strokeStyle = newColor;
     }
+
     clearCanvas() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    redrawPaths() {
-        this.paths.forEach(p => {
+
+    redrawPaths(myPaths = this.paths) {
+        myPaths.forEach(p => {
             this.ctx.beginPath();
             this.ctx.moveTo(p[0].x, p[0].y);
             p.slice(1).forEach(pnt => {
