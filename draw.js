@@ -51,6 +51,7 @@ class Canvas {
         this.ctx.lineWidth = 4;
         this.drawing = false;
         this.path = [];
+        this.pathHistory = [];
         this.canvas.addEventListener("pointerdown", this.startDraw.bind(this));
         this.canvas.addEventListener("pointermove", this.draw.bind(this));
         this.canvas.addEventListener("pointerup", this.endDraw.bind(this));
@@ -105,29 +106,27 @@ class Canvas {
             return;
         }
         const newRedo = this.paths.pop();
-        console.log("redo: ", newRedo);
         if (newRedo === null) {
-            console.log("null");
-            this.clearCanvas();
-            this.slice = this.paths.length - 1;
-            this.redos.push(null);
-            return;
+            const temp = this.pathHistory;
+            this.pathHistory = this.paths;
+            this.paths = temp;
         }
-        console.log("not returning");
         this.redos.push(newRedo);
         this.clearCanvas();
         this.redrawPaths();
     }
 
     redo() {
+        console.log(this.redos);
         if (this.redos.length < 1) {
             return;
         }
         const oldPath = this.redos.pop();
         if (oldPath === null) {
-            this.clearCanvas();
-            this.paths.push(null);
-            return;
+            const temp = this.pathHistory;
+            this.pathHistory = this.paths;
+            this.paths = temp;
+            this.redos = temp;
         }
         this.paths.push(oldPath);
         this.clearCanvas();
@@ -146,7 +145,8 @@ class Canvas {
 
     clearScreen() {
         this.clearCanvas();
-        this.paths.push(null);
+        this.pathHistory = this.paths;
+        this.paths = [null];
     }
 
     clearCanvas() {
@@ -154,7 +154,7 @@ class Canvas {
     }
 
     redrawPaths(myPaths = this.paths) {
-        myPaths.slice(this.slice, myPaths.length - 1).forEach(p => {
+        myPaths.forEach(p => {
             if (p === null) {
                 return;
             }
