@@ -42,10 +42,12 @@ class Canvas {
   this.redos = [];
   this.slice = 0;
   this.ctx = this.canvas.getContext("2d");
-  this.ctx.strokeStyle = "#ffffff";
+  this.strokeColor = "#ffffff";
+  this.strokeWidth = 4;
+  this.ctx.strokeStyle = this.strokeColor;
+  this.ctx.lineWidth = this.strokeWidth;
   this.ctx.lineJoin = "round";
   this.ctx.lineCap = "round";
-  this.ctx.lineWidth = 4;
   this.drawing = false;
   this.path = [];
   this.pathHistory = [];
@@ -61,13 +63,12 @@ class Canvas {
   this.drawing = true;
   const { x, y } = this.getMousePos(e);
   const meta = {
-   thickness: this.ctx.lineWidth,
-   color: this.ctx.strokeStyle
+   thickness: this.strokeColor,
+   color: this.strokeWidth
   };
   this.ctx.beginPath();
   this.ctx.moveTo(x, y);
-  this.path.push(meta);
-  this.path.push({ x, y });
+  this.path.push({ ...meta, x, y });
  }
 
  draw(e) {
@@ -113,8 +114,8 @@ class Canvas {
    this.pathHistory = this.paths;
    this.paths = temp;
   }
-  this.ctx.strokeStyle = newRedo[0].color;
-  this.ctx.strokeThickness = newRedo[0].thickness;
+  this.strokeStyle = newRedo[0].color;
+  this.strokeWidth = newRedo[0].thickness;
   this.redos.push(newRedo);
   this.clearCanvas();
   this.redrawPaths();
@@ -167,7 +168,6 @@ class Canvas {
    this.ctx.beginPath();
    const x = p[0].x;
    const y = p[0].y;
-  // if (!x || !y) return;
    this.ctx.moveTo(x, y);
    p.slice(1).forEach(pnt => {
     this.ctx.lineTo(pnt.x, pnt.y);
