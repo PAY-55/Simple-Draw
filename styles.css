@@ -10,22 +10,24 @@ body {
 }
 
 button {
-  background-color: transparent;
   border: none;
   outline: none;
   color: #fff;
   border-radius: 3px;
   padding: 8px;
-  margin: 0 5px;
+  margin: 0 2.5px;
   background-color: #333;
   cursor: pointer;
   transition: 200ms ease-in-out;
   overflow: hidden;
 }
-
 button:hover {
   background-color: #aaa;
   color: #000;
+}
+
+button i {
+  pointer-events: none;
 }
 
 select {
@@ -62,8 +64,19 @@ input {
   gap: 8px;
 }
 
+#toolbar p {
+  color: #aaa;
+  font-size: 1.25em;
+  margin: 0 7px;
+}
+
+.selected {
+  background-color: #fff;
+  color: #000;
+}
+
 .canvas-input {
   border: 1px solid red;
   position: absolute;
   z-index: 999;
-}
+}/*# sourceMappingURL=styles.css.map */
