@@ -6,6 +6,7 @@
 body {
   background-color: #222;
   overscroll-behavior-y: contain;
+  position: relative;
 }
 
 button {
@@ -32,14 +33,14 @@ select {
   border: none;
   outline: none;
   color: #fff;
-  padding: 5px;
+  padding: 8px;
   margin-right: 5px;
   cursor: pointer;
 }
 
 input {
   background-color: #333;
-  padding: 5px;
+  padding: 8px;
   margin-right: 5px;
   border: none;
   outline: none;
@@ -59,4 +60,10 @@ input {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.canvas-input {
+  border: 1px solid red;
+  position: absolute;
+  z-index: 999;
 }
