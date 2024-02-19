@@ -21,10 +21,6 @@ button {
   transition: 200ms ease-in-out;
   overflow: hidden;
 }
-button:hover {
-  background-color: #aaa;
-  color: #000;
-}
 
 button i {
   pointer-events: none;
@@ -79,4 +75,4 @@ input {
   border: 1px solid red;
   position: absolute;
   z-index: 999;
-}/*# sourceMappingURL=styles.css.map */
+}

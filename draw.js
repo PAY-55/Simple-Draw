@@ -21,6 +21,8 @@ function initializeBoard(e) {
  const strokeColor = tools.getBtn("color");
  const freeHand = tools.getBtn("freehand");
  const line = tools.getBtn("line");
+ const allBtns = document.querySelectorAll(".sel");
+ selectBtn(freehand);
  undo.addEventListener("click", drawPad.undo.bind(drawPad));
  redo.addEventListener("click", drawPad.redo.bind(drawPad));
  clear.addEventListener("click", drawPad.clearScreen.bind(drawPad));
@@ -29,7 +31,24 @@ function initializeBoard(e) {
   drawPad.setStrokeThickness.bind(drawPad)
  );
  strokeColor.addEventListener("input", drawPad.changeStrokeColor.bind(drawPad));
- line.addEventListener("click", drawPad.drawLine.bind(drawPad));
+ freehand.addEventListener("click", e => {
+  deSelectAllBtns(allBtns);
+  selectBtn(freehand);
+  drawPad.drawFreeHand.bind(drawPad, e)();
+ });
+ line.addEventListener("click", e => {
+  deSelectAllBtns(allBtns);
+  selectBtn(line);
+  drawPad.drawLine.bind(drawPad, e)();
+ });
+}
+
+function deSelectAllBtns(btns) {
+ btns.forEach(b => b.classList.remove("selected"));
+}
+
+function selectBtn(btn) {
+ btn.classList.add("selected");
 }
 
 function resize(canvas) {
@@ -42,8 +61,6 @@ class Canvas {
   this.canvas = canvas;
   this.paths = paths;
   this.redos = [];
-  this.newTextBoxDems = { x: 0, y: 0, width: 0, height: 0 };
-  this.slice = 0;
   this.ctx = this.canvas.getContext("2d");
   this.strokeColor = "#ffffff";
   this.strokeWidth = 4;
@@ -170,6 +187,10 @@ class Canvas {
   this.clearCanvas();
   this.pathHistory = this.paths;
   this.paths = [null];
+ }
+
+ drawFreeHand() {
+  this.drawingLine = false;
  }
 
  drawLine() {
