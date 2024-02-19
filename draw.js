@@ -83,7 +83,7 @@ class Canvas {
    this.ctx.strokeStyle = this.strokeColor;
    this.ctx.lineWidth = this.strokeWidth;
    this.path.push({ x, y });
-   //this.redrawPaths();
+   this.drawPath();
    return;
   }
   if (this.drawing) {
@@ -178,6 +178,20 @@ class Canvas {
 
  clearCanvas() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+ }
+
+ drawPath() {
+  if (this.path.lemgth < 1) {
+   return;
+  }
+  this.clearCanvas();
+  this.ctx.beginPath();
+  const begin = this.path[0];
+  const end = this.path[1];
+  this.ctx.moveTo(begin.x, begin.y);
+  this.ctx.lineTo(end.x, end.y);
+  this.ctx.stroke();
+  this.redrawPaths();
  }
 
  redrawPaths(myPaths = this.paths) {
