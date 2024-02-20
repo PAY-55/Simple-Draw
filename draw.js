@@ -19,9 +19,12 @@ function initializeBoard(e) {
  const clear = tools.getBtn("clear");
  const strokeThickness = tools.getBtn("px");
  const strokeColor = tools.getBtn("color");
+ const allBtns = document.querySelectorAll(".sel");
  const freeHand = tools.getBtn("freehand");
  const line = tools.getBtn("line");
- const allBtns = document.querySelectorAll(".sel");
+ const poly = tools.getBtn("poly");
+ const square = tools.getBtn("square");
+ const circle = tools.getBtn("circle");
  selectBtn(freehand);
  undo.addEventListener("click", drawPad.undo.bind(drawPad));
  redo.addEventListener("click", drawPad.redo.bind(drawPad));
@@ -40,6 +43,21 @@ function initializeBoard(e) {
   deSelectAllBtns(allBtns);
   selectBtn(line);
   drawPad.drawLine.bind(drawPad, e)();
+ });
+ poly.addEventListener("click", e => {
+  deSelectAllBtns(allBtns);
+  selectBtn(poly);
+  drawPad.drawPoly.bind(drawPad, e)();
+ });
+ circle.addEventListener("click", e => {
+  deSelectAllBtns(allBtns);
+  selectBtn(circle);
+  drawPad.drawCircle.bind(drawPad, e)();
+ });
+ square.addEventListener("click", e => {
+  deSelectAllBtns(allBtns);
+  selectBtn(square);
+  drawPad.drawSquare.bind(drawPad, e)();
  });
 }
 
@@ -66,8 +84,11 @@ class Canvas {
   this.strokeWidth = 4;
   this.ctx.lineJoin = "round";
   this.ctx.lineCap = "round";
+  this.polyStart = { x: 0, y: 0 };
   this.drawing = false;
   this.drawingLine = false;
+  this.drawingPoly = false;
+  this.drawingCircle = false;
   this.path = [];
   this.pathHistory = [];
   this.canvas.addEventListener("pointerdown", this.startDraw.bind(this));
@@ -85,12 +106,33 @@ class Canvas {
    thickness: this.strokeWidth,
    color: this.strokeColor
   };
-  this.ctx.beginPath();
-  this.ctx.moveTo(x, y);
+  if (this.drawingPoly) {
+   if (this.path.length > 0) {
+    this.ctx.moveTo(this.path[0].x, this.path[0].y);
+   } else {
+    this.this.path.push({ ...meta, x, y });
+    this.ctx.moveTo(x, y);
+   }
+   this.ctx.beginPath();
+   return;
+  }
   this.path.push({ ...meta, x, y });
+  this.ctx.moveTo(x, y);
+  this.ctx.beginPath();
  }
 
  draw(e) {
+  if (this.drawingPoly) {
+   if (this.path.length > 1) {
+    this.path.pop();
+   }
+   const { x, y } = this.getMousePos(e);
+   this.ctx.strokeStyle = this.strokeColor;
+   this.ctx.lineWidth = this.strokeWidth;
+   this.path.push({ x, y });
+   this.drawPolyPath();
+   return;
+  }
   if (this.drawingLine) {
    if (this.path.length > 1) {
     this.path.pop();
@@ -101,6 +143,17 @@ class Canvas {
    this.ctx.lineWidth = this.strokeWidth;
    this.path.push({ x, y });
    this.drawPath();
+   return;
+  }
+  if (this.drawingCircle) {
+   if (this.path.length > 1) {
+    this.path.pop();
+   }
+   const { x, y } = this.getMousePos(e);
+   this.ctx.strokeStyle = this.strokeColor;
+   this.ctx.lineWidth = this.strokeWidth;
+   this.path.push({ x, y });
+   this.drawCirclePath();
    return;
   }
   if (this.drawing) {
@@ -116,6 +169,13 @@ class Canvas {
  endDraw(e) {
   this.drawing = false;
   if (this.path.length < 1) {
+   return;
+  }
+  if (this.drawingPoly) {
+   const lastCoordinates = this.path[1];
+   this.paths.push(this.path);
+   this.path = [];
+   this.path.push(lastCoordinates);
    return;
   }
   this.paths.push(this.path);
@@ -191,18 +251,35 @@ class Canvas {
 
  drawFreeHand() {
   this.drawingLine = false;
+  this.drawingPoly = false;
+  this.path = [];
  }
 
  drawLine() {
   this.drawingLine = true;
+  this.drawingPoly = false;
+  this.path = [];
  }
+
+ drawPoly() {
+  this.drawingPoly = true;
+ }
+
+ drawCircle() {
+  this.drawingLine = false;
+  this.drawingPoly = false;
+  this.drawingCircle = true;
+  this.path = [];
+ }
+
+ drawSquare() {}
 
  clearCanvas() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
  }
 
  drawPath() {
-  if (this.path.lemgth < 1) {
+  if (this.path.length < 1) {
    return;
   }
   this.clearCanvas();
@@ -213,6 +290,34 @@ class Canvas {
   this.ctx.lineTo(end.x, end.y);
   this.ctx.stroke();
   this.redrawPaths();
+ }
+
+ drawPolyPath() {
+  if (this.path.length < 1) {
+   return;
+  }
+  this.clearCanvas();
+  this.ctx.beginPath();
+  const begin = this.path[0];
+  const end = this.path[1];
+  this.ctx.moveTo(begin.x, begin.y);
+  this.ctx.lineTo(end.x, end.y);
+  this.ctx.stroke();
+  this.redrawPaths();
+ }
+
+ drawCirclePath() {
+  if (this.path.length < 1) {
+   return;
+  }
+  this.clearCanvas();
+  this.ctx.beginPath();
+  const centerX = this.path[0].x;
+  const centerY = this.path[0].y;
+  const radius = this.path[1].x - centerX;
+  this.ctx.moveTo(centerX, centerY);
+  this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  this.ctx.stroke();
  }
 
  redrawPaths(myPaths = this.paths) {
