@@ -103,18 +103,26 @@ class Canvas {
   this.drawing = true;
   const { x, y } = this.getMousePos(e);
   const meta = {
+   type: "freehand",
    thickness: this.strokeWidth,
    color: this.strokeColor
   };
   if (this.drawingPoly) {
+   meta.type = "poly";
    if (this.path.length > 0) {
     this.ctx.moveTo(this.path[0].x, this.path[0].y);
    } else {
-    this.this.path.push({ ...meta, x, y });
+    this.path.push({ ...meta, x, y });
     this.ctx.moveTo(x, y);
    }
    this.ctx.beginPath();
    return;
+  }
+  if (this.drawingLine) {
+   meta.type = "line";
+  }
+  if (this.drawingCircle) {
+   meta.type = "circle";
   }
   this.path.push({ ...meta, x, y });
   this.ctx.moveTo(x, y);
@@ -252,17 +260,21 @@ class Canvas {
  drawFreeHand() {
   this.drawingLine = false;
   this.drawingPoly = false;
+  this.drawingCircle = false;
   this.path = [];
  }
 
  drawLine() {
   this.drawingLine = true;
   this.drawingPoly = false;
+  this.drawingCircle = false;
   this.path = [];
  }
 
  drawPoly() {
   this.drawingPoly = true;
+  this.drawingLine = false;
+  this.drawingCircle = false;
  }
 
  drawCircle() {
@@ -314,10 +326,15 @@ class Canvas {
   this.ctx.beginPath();
   const centerX = this.path[0].x;
   const centerY = this.path[0].y;
-  const radius = this.path[1].x - centerX;
+  let radius;
+  radius = centerX - this.path[1].x;
+  if (radius <= 0) {
+   radius = this.path[1].x - centerX;
+  }
   this.ctx.moveTo(centerX, centerY);
   this.ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
   this.ctx.stroke();
+  this.redrawPaths();
  }
 
  redrawPaths(myPaths = this.paths) {
@@ -325,7 +342,7 @@ class Canvas {
    if (p === null) {
     return;
    }
-   const { color, thickness } = p[0];
+   const { color, thickness, type } = p[0];
    this.ctx.lineWidth = thickness;
    this.ctx.strokeStyle = color;
    this.ctx.beginPath();
@@ -333,7 +350,17 @@ class Canvas {
    const y = p[0].y;
    this.ctx.moveTo(x, y);
    p.slice(1).forEach(pnt => {
-    this.ctx.lineTo(pnt.x, pnt.y);
+    if (type === "circle") {
+     let radius;
+     radius = x - p[1].x;
+     if (radius <= 0) {
+      radius = p[1].x - x;
+     }
+     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+     this.ctx.arc(x, y, radius * 1, 0, 2 * Math.PI);
+    } else {
+     this.ctx.lineTo(pnt.x, pnt.y);
+    }
    });
    this.ctx.stroke();
   });
