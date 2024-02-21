@@ -89,6 +89,7 @@ class Canvas {
   this.drawingLine = false;
   this.drawingPoly = false;
   this.drawingCircle = false;
+  this.drawingSquare = false;
   this.path = [];
   this.pathHistory = [];
   this.canvas.addEventListener("pointerdown", this.startDraw.bind(this));
@@ -124,12 +125,26 @@ class Canvas {
   if (this.drawingCircle) {
    meta.type = "circle";
   }
+  if (this.drawingSquare) {
+   meta.type = "square";
+  }
   this.path.push({ ...meta, x, y });
   this.ctx.moveTo(x, y);
   this.ctx.beginPath();
  }
 
  draw(e) {
+  if (this.drawingSquare) {
+   if (this.path.length > 1) {
+    this.path.pop();
+   }
+   const { x, y } = this.getMousePos(e);
+   this.ctx.strokeStyle = this.strokeColor;
+   this.ctx.lineWidth = this.strokeWidth;
+   this.path.push({ x, y });
+   this.drawSquarePath();
+   return;
+  }
   if (this.drawingPoly) {
    if (this.path.length > 1) {
     this.path.pop();
@@ -261,6 +276,7 @@ class Canvas {
   this.drawingLine = false;
   this.drawingPoly = false;
   this.drawingCircle = false;
+  this.drawingSquare = false;
   this.path = [];
  }
 
@@ -268,6 +284,7 @@ class Canvas {
   this.drawingLine = true;
   this.drawingPoly = false;
   this.drawingCircle = false;
+  this.drawingSquare = false;
   this.path = [];
  }
 
@@ -275,16 +292,23 @@ class Canvas {
   this.drawingPoly = true;
   this.drawingLine = false;
   this.drawingCircle = false;
+  this.drawingSquare = false;
  }
 
  drawCircle() {
   this.drawingLine = false;
   this.drawingPoly = false;
   this.drawingCircle = true;
+  this.drawingSquare = false;
   this.path = [];
  }
 
- drawSquare() {}
+ drawSquare() {
+  this.drawingLine = false;
+  this.drawingPoly = false;
+  this.drawingCircle = false;
+  this.drawingSquare = true;
+ }
 
  clearCanvas() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -301,6 +325,24 @@ class Canvas {
   this.ctx.moveTo(begin.x, begin.y);
   this.ctx.lineTo(end.x, end.y);
   this.ctx.stroke();
+  this.redrawPaths();
+ }
+
+ drawSquarePath() {
+  if (this.path.length < 1) {
+   return;
+  }
+  this.clearCanvas();
+  this.ctx.beginPath();
+  const begin = this.path[0];
+  const end = this.path[1];
+  let sideLength;
+  sideLength = begin.x - end.x;
+  if (sideLength < 0) {
+   sideLength = end.x - begin.x;
+  }
+  this.ctx.moveTo(begin.x, begin.y);
+  this.ctx.strokeRect(begin.x, begin.y, sideLength, sideLength);
   this.redrawPaths();
  }
 
@@ -357,7 +399,13 @@ class Canvas {
       radius = p[1].x - x;
      }
      this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
-     this.ctx.arc(x, y, radius * 1, 0, 2 * Math.PI);
+    } else if (type === "square") {
+     let sideLength;
+     sideLength = p[1].x - x;
+     if (sideLength < 0) {
+      sideLength = x - p[1].x;
+     }
+     this.ctx.strokeRect(x, y, sideLength, sideLength);
     } else {
      this.ctx.lineTo(pnt.x, pnt.y);
     }
