@@ -35,26 +35,31 @@ function initializeBoard(e) {
  );
  strokeColor.addEventListener("input", drawPad.changeStrokeColor.bind(drawPad));
  freehand.addEventListener("click", e => {
+  e.stopPropagation();
   deSelectAllBtns(allBtns);
   selectBtn(freehand);
   drawPad.drawFreeHand.bind(drawPad, e)();
  });
  line.addEventListener("click", e => {
+  e.stopPropagation();
   deSelectAllBtns(allBtns);
   selectBtn(line);
   drawPad.drawLine.bind(drawPad, e)();
  });
  poly.addEventListener("click", e => {
+  e.stopPropagation();
   deSelectAllBtns(allBtns);
   selectBtn(poly);
   drawPad.drawPoly.bind(drawPad, e)();
  });
  circle.addEventListener("click", e => {
+  e.stopPropagation();
   deSelectAllBtns(allBtns);
   selectBtn(circle);
   drawPad.drawCircle.bind(drawPad, e)();
  });
  square.addEventListener("click", e => {
+  e.stopPropagation();
   deSelectAllBtns(allBtns);
   selectBtn(square);
   drawPad.drawSquare.bind(drawPad, e)();
@@ -223,7 +228,8 @@ class Canvas {
   console.log(this.paths);
  }
 
- undo() {
+ undo(e) {
+  e.stopPropagation();
   if (this.paths.length < 1) {
    return;
   }
@@ -238,7 +244,8 @@ class Canvas {
   this.redrawPaths();
  }
 
- redo() {
+ redo(e) {
+  e.stopPropagation();
   if (this.redos.length < 1) {
    return;
   }
@@ -267,6 +274,7 @@ class Canvas {
  }
 
  clearScreen() {
+  e.stopPropagation();
   this.clearCanvas();
   this.pathHistory = this.paths;
   this.paths = [null];
