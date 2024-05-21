@@ -3,7 +3,6 @@ function initializeBoard(e) {
   const toolBar = document.getElementById("toolbar");
   canvas.style.backgroundColor = "#223";
   resize(canvas);
-  //   window.addEventListener("resize", () => resize(canvas));
   if (canvas.getContext) {
     canvas.getContext("2d");
   } else {
@@ -11,7 +10,17 @@ function initializeBoard(e) {
     window.removeEventListener("load", drawBoard);
     return;
   }
-  const paths = [];
+  let paths = [];
+  try {
+    const savedPaths = localStorage.getItem("paths");
+    if (savedPaths) {
+      const parsedPaths = JSON.parse(savedPaths);
+      paths = parsedPaths;
+    }
+  } catch (err) {
+    console.log(err);
+    alert("Could not retrieve saved drawing");
+  }
   const drawPad = new Canvas(canvas, paths);
   const tools = new ToolBar(toolBar);
   const undo = tools.getBtn("undo");
@@ -26,10 +35,16 @@ function initializeBoard(e) {
   const poly = tools.getBtn("poly");
   const square = tools.getBtn("square");
   const circle = tools.getBtn("circle");
+  const save = tools.getBtn("save");
   selectBtn(freehand);
   undo.addEventListener("click", drawPad.undo.bind(drawPad));
   redo.addEventListener("click", drawPad.redo.bind(drawPad));
   clear.addEventListener("click", drawPad.clearScreen.bind(drawPad));
+  save.addEventListener("click", drawPad.save.bind(drawPad));
+  window.addEventListener("resize", () => {
+    resize(canvas);
+    drawPad.redrawPaths();
+  });
   strokeThickness.addEventListener(
     "change",
     drawPad.setStrokeThickness.bind(drawPad)
@@ -71,7 +86,8 @@ function initializeBoard(e) {
   fullScreen.addEventListener("click", async (e) => {
     e.stopPropagation();
     selectBtn(fullScreen);
-    fullScreenRequest(fullScreen, canvas);
+    await fullScreenRequest(fullScreen, canvas);
+    drawPad.redrawPaths();
   });
 }
 
@@ -110,16 +126,14 @@ async function fullScreenRequest(btn, canvas) {
   const body = document.body;
   if (document.fullscreenElement !== null) {
     console.log("full screen bitch!");
-    document
-      .exitFullscreen()
-      .then(() => {
-        deSelectBtn(btn);
-        resize(canvas);
-      })
-      .catch((err) => {
-        console.log(err);
-        alert("Cannot exit fullscreen");
-      });
+    try {
+      await document.exitFullscreen();
+      deSelectBtn(btn);
+      resize(canvas);
+    } catch (err) {
+      console.log(err);
+      alert("Cannot exit fullscreen");
+    }
     return;
   }
   try {
@@ -160,6 +174,21 @@ class Canvas {
     this.canvas.addEventListener("touchstart", this.startDraw.bind(this));
     this.canvas.addEventListener("touchmove", this.draw.bind(this));
     this.canvas.addEventListener("touchend", this.endDraw.bind(this));
+    if (this.paths.length > 0) {
+      this.redrawPaths();
+    }
+  }
+
+  save(e) {
+    e.stopPropagation();
+    try {
+      const stringifiedPaths = JSON.stringify(this.paths);
+      localStorage.setItem("paths", stringifiedPaths);
+      alert("Your drawing has been saved");
+    } catch (err) {
+      console.log(err);
+      alert("We could not save your drawing");
+    }
   }
 
   startDraw(e) {
