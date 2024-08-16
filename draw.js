@@ -420,6 +420,7 @@ class Canvas {
     const begin = this.path[0];
     const end = this.path[1];
     this.ctx.moveTo(begin.x, begin.y);
+    this.ctx.lineCap = "round";
     this.ctx.lineTo(end.x, end.y);
     this.ctx.stroke();
     this.redrawPaths();
